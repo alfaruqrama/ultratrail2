@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Siksorogo Lawu Ultra 50K — Training Plan</title>
+<style>
+  :root{
+    --bg:#FAFAF7;
+    --bg-alt:#F1EFE8;
+    --ink:#1B1D19;
+    --ink-soft:#5C5A50;
+    --line:#E2DFD3;
+    --pine:#3F5B44;
+    --pine-soft:#DEE7DE;
+    --stone:#8B8377;
+    --stone-soft:#EDEAE2;
+    --clay:#AD7440;
+    --clay-soft:#F3E5D3;
+    --slate:#5B6B76;
+    --slate-soft:#E4E9EB;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    line-height:1.45;
+  }
+  .wrap{max-width:880px;margin:0 auto;padding:32px 20px 80px;}
+  h1,h2,h3{font-family:Georgia,"Times New Roman",serif;font-weight:400;margin:0;}
+
+  /* header */
+  header{border-bottom:1px solid var(--line);padding-bottom:28px;margin-bottom:28px;}
+  .eyebrow{font-size:13px;color:var(--pine);letter-spacing:.02em;margin-bottom:6px;}
+  h1{font-size:30px;line-height:1.2;color:var(--ink);}
+  .subtitle{color:var(--ink-soft);font-size:15px;margin-top:8px;max-width:520px;}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:22px;}
+  .stat{border-left:2px solid var(--pine-soft);padding-left:12px;}
+  .stat .v{font-family:Georgia,serif;font-size:20px;}
+  .stat .l{font-size:12px;color:var(--ink-soft);margin-top:2px;}
+  @media(max-width:640px){.stats{grid-template-columns:repeat(2,1fr);}}
+
+  /* progress + chart */
+  .panel{background:var(--bg-alt);border-radius:10px;padding:20px;margin-bottom:32px;}
+  .panel-title{font-size:13px;color:var(--ink-soft);margin-bottom:14px;display:flex;justify-content:space-between;align-items:baseline;}
+  .progress-track{height:6px;background:var(--stone-soft);border-radius:3px;overflow:hidden;margin-bottom:20px;}
+  .progress-fill{height:100%;background:var(--pine);transition:width .3s ease;}
+  svg.chart{width:100%;height:150px;display:block;}
+  .legend{display:flex;gap:18px;font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .dot{width:9px;height:9px;border-radius:2px;display:inline-block;}
+
+  /* phase timeline */
+  .phase{position:relative;padding-left:28px;margin-bottom:6px;}
+  .phase::before{content:"";position:absolute;left:8px;top:34px;bottom:-6px;width:1px;background:var(--line);}
+  .phase:last-child::before{display:none;}
+  .phase-bullet{position:absolute;left:0;top:6px;width:17px;height:17px;border-radius:50%;background:var(--bg);border:2px solid var(--pine);}
+  .phase-bullet.done{background:var(--pine);}
+  .phase-head{cursor:pointer;padding:6px 0 18px;}
+  .phase-head h2{font-size:21px;}
+  .phase-range{font-size:12px;color:var(--pine);margin-top:2px;}
+  .phase-goal{font-size:14px;color:var(--ink-soft);margin-top:6px;max-width:560px;}
+  .phase-toggle{float:right;font-size:12px;color:var(--ink-soft);}
+  .weeks{display:none;padding-bottom:10px;}
+  .weeks.open{display:block;}
+
+  .week{border:1px solid var(--line);border-radius:10px;margin-bottom:14px;overflow:hidden;background:#fff;}
+  .week-head{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--bg-alt);}
+  .week-head .wt{font-size:14px;}
+  .week-head .wt b{font-family:Georgia,serif;font-weight:400;font-size:15px;}
+  .week-head .wd{font-size:12px;color:var(--ink-soft);}
+  .now-tag{font-size:11px;background:var(--clay);color:#fff;padding:2px 8px;border-radius:20px;margin-left:8px;}
+  .wmin{font-size:12px;color:var(--ink-soft);}
+
+  .day{display:flex;gap:12px;padding:12px 16px;border-top:1px solid var(--line);align-items:flex-start;}
+  .day.rest{opacity:.75;}
+  .day input[type=checkbox]{margin-top:4px;width:16px;height:16px;accent-color:var(--pine);flex-shrink:0;cursor:pointer;}
+  .day-main{flex:1;min-width:0;}
+  .day-top{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;}
+  .day-name{font-size:12px;color:var(--ink-soft);width:52px;flex-shrink:0;}
+  .type-tag{font-size:11px;padding:1px 8px;border-radius:20px;flex-shrink:0;}
+  .type-run{background:var(--pine-soft);color:var(--pine);}
+  .type-hike{background:#DCE2C8;color:#4B5A2E;}
+  .type-bike{background:var(--slate-soft);color:var(--slate);}
+  .type-strength{background:var(--stone-soft);color:var(--stone);}
+  .type-rest{background:var(--bg-alt);color:var(--ink-soft);}
+  .type-key{background:var(--clay-soft);color:var(--clay);}
+  .day-title{font-size:14.5px;margin-top:3px;}
+  .day-title.checked{text-decoration:line-through;color:var(--ink-soft);}
+  .day-desc{font-size:13px;color:var(--ink-soft);margin-top:3px;}
+  .day-dur{font-size:12px;color:var(--ink-soft);white-space:nowrap;margin-left:8px;}
+  .log-btn{font-size:12px;color:var(--pine);background:none;border:none;cursor:pointer;padding:0;margin-top:6px;text-decoration:underline;text-underline-offset:2px;}
+  .log-panel{display:none;margin-top:10px;background:var(--bg-alt);border-radius:8px;padding:12px;}
+  .log-panel.open{display:block;}
+  .log-row{display:flex;gap:16px;margin-bottom:8px;}
+  .log-field{flex:1;}
+  .log-field label{font-size:11px;color:var(--ink-soft);display:block;margin-bottom:3px;}
+  .log-field input[type=number]{width:100%;border:1px solid var(--line);border-radius:6px;padding:5px 8px;font-size:13px;}
+  .log-field textarea{width:100%;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-size:13px;font-family:inherit;resize:vertical;min-height:44px;}
+  .saved-hint{font-size:11px;color:var(--pine);margin-top:4px;height:14px;}
+
+  footer{margin-top:36px;padding-top:20px;border-top:1px solid var(--line);font-size:12px;color:var(--ink-soft);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Rencana latihan · 13 minggu</div>
+    <h1>Siksorogo Lawu Ultra — 50K</h1>
+    <p class="subtitle">Pendekatan konservatif, prioritas manajemen cedera plantar fascitis. Kombinasi power hike, trail run bertahap, dan cross-training sepeda.</p>
+    <div class="stats">
+      <div class="stat"><div class="v">53.99 km</div><div class="l">Jarak</div></div>
+      <div class="stat"><div class="v">+3599 m</div><div class="l">Elevation gain</div></div>
+      <div class="stat"><div class="v">17 jam</div><div class="l">Cut-off time</div></div>
+      <div class="stat"><div class="v">5 Des 2026</div><div class="l" id="countdownLabel">Race day</div></div>
+    </div>
+  </header>
+
+  <div class="panel">
+    <div class="panel-title"><span>Progres keseluruhan</span><span id="progressPct">0%</span></div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="panel-title" style="margin-bottom:6px;">Volume latihan mingguan (menit)</div>
+    <svg class="chart" id="chart" viewBox="0 0 860 150" preserveAspectRatio="none"></svg>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--stone-soft);border:1px solid var(--stone);"></i>Rencana</span>
+      <span><i class="dot" style="background:var(--pine);"></i>Terselesaikan</span>
+    </div>
+  </div>
+
+  <div id="phases"></div>
+
+  <footer>
+    Dibuat untuk persiapan Siksorogo Lawu Ultra 50K, 5 Desember 2026. Progres tersimpan selama sesi ini saja — kalau di-deploy ke Vercel, tambahkan localStorage atau backend kecil supaya progres tersimpan permanen antar kunjungan.
+  </footer>
+
+</div>
+
+<script>
+const PHASES = [
+  {
+    name: "Fase 1 — Fondasi & Rehabilitasi",
+    goal: "Membangun kembali base aerobik tanpa memancing nyeri plantar fascitis. Prioritas cross-training rendah impact, kekuatan kaki, dan power hike.",
+    weeks: [
+      {
+        label: "Minggu 1", range: "7–13 Sep", start: "2026-09-07",
+        days: [
+          {d:"Senin", type:"rest", title:"Mobility & PF release", desc:"Foam roll betis, stretch plantar fascia, 10 menit.", min:10},
+          {d:"Selasa", type:"bike", title:"Bike zona 2", desc:"Sepeda santai, HR rendah.", min:35},
+          {d:"Rabu", type:"run", title:"Trail run-walk", desc:"4x (3 menit lari + 2 menit jalan) di rumput/trail lembut.", min:25},
+          {d:"Kamis", type:"strength", title:"Strength kaki", desc:"Calf raise 3x15, single leg balance 3x30dtk, towel scrunch.", min:15},
+          {d:"Jumat", type:"bike", title:"Bike zona 2", desc:"Sepeda santai.", min:40},
+          {d:"Sabtu", type:"hike", title:"Power hike bukit", desc:"Fokus nanjak steady, turun pelan & hati-hati.", min:90},
+          {d:"Minggu", type:"rest", title:"Recovery walk", desc:"Jalan santai + stretching ringan.", min:20},
+        ]
+      },
+      {
+        label: "Minggu 2", range: "14–20 Sep", start: "2026-09-14",
+        days: [
+          {d:"Senin", type:"rest", title:"Rest + PF exercise", desc:"Eccentric heel drop, mobility.", min:10},
+          {d:"Selasa", type:"bike", title:"Bike zona 2", desc:"Sepeda santai.", min:40},
+          {d:"Rabu", type:"run", title:"Trail run-walk", desc:"5x (4 menit lari + 2 menit jalan).", min:30},
+          {d:"Kamis", type:"strength", title:"Strength kaki", desc:"Calf raise 3x20, eccentric heel drop 3x12, hip bridge.", min:20},
+          {d:"Jumat", type:"bike", title:"Bike + strides", desc:"45 menit easy, opsional 4x20dtk strides datar kalau kaki enak.", min:45},
+          {d:"Sabtu", type:"hike", title:"Hike bukit + downhill drill", desc:"Selipkan 4x turunan pendek landai, fokus kontrol.", min:105},
+          {d:"Minggu", type:"bike", title:"Recovery spin", desc:"Sepeda sangat santai.", min:30},
+        ]
+      },
+      {
+        label: "Minggu 3", range: "21–27 Sep", start: "2026-09-21",
+        days: [
+          {d:"Senin", type:"rest", title:"Rest", desc:"Mobility ringan.", min:10},
+          {d:"Selasa", type:"bike", title:"Bike zona 2", desc:"Sepeda santai.", min:40},
+          {d:"Rabu", type:"run", title:"Trail run kontinu", desc:"Lanjutkan hanya jika nyeri stabil ≤4/10.", min:40},
+          {d:"Kamis", type:"strength", title:"Strength + mobility", desc:"Rutinitas kaki + peregangan.", min:20},
+          {d:"Jumat", type:"bike", title:"Bike zona 2", desc:"Sepeda santai.", min:45},
+          {d:"Sabtu", type:"hike", title:"Long hike/trail rolling", desc:"Manfaatkan bukit dekat rumah, 200–300m eg.", min:120},
+          {d:"Minggu", type:"rest", title:"Rest total", desc:"Atau jalan santai kalau ingin bergerak.", min:20},
+        ]
+      },
+      {
+        label: "Minggu 4", range: "28 Sep–4 Okt", start: "2026-09-28",
+        days: [
+          {d:"Senin", type:"rest", title:"Rest", desc:"Deload week dimulai.", min:0},
+          {d:"Selasa", type:"bike", title:"Bike ringan", desc:"Volume diturunkan ~30%.", min:30},
+          {d:"Rabu", type:"run", title:"Trail run easy", desc:"Singkat, pace sangat santai.", min:25},
+          {d:"Kamis", type:"key", title:"Checkpoint fisio/dokter olahraga", desc:"Evaluasi nyeri PF, minta izin lanjut ke fase build.", min:0},
+          {d:"Jumat", type:"rest", title:"Mobility", desc:"Peregangan & foam rolling.", min:15},
+          {d:"Sabtu", type:"hike", title:"Hike ringan", desc:"Tanpa push, dengarkan tubuh.", min:60},
+          {d:"Minggu", type:"rest", title:"Rest total", desc:"", min:0},
+        ]
+      },
+    ]
+  },
+  {
+    name: "Fase 2 — Bangun Aerobik & Vertikal",
+    goal: "Menambah time-on-feet dan elevation gain bertahap, mulai latihan teknik turunan terkontrol, terus memonitor PF.",
+    weeks: [
+      {
+        label: "Minggu 5", range: "5–11 Okt", start: "2026-10-05",
+        days: [
+          {d:"Senin", type:"rest", title:"Rest", desc:"", min:0},
+          {d:"Selasa", type:"bike", title:"Bike zona 2", desc:"", min:45},
+          {d:"Rabu", type:"run", title:"Trail run easy", desc:"~7 km, kontinu.", min:50},
+          {d:"Kamis", type:"strength", title:"Strength + downhill drill", desc:"6x30 detik teknik turunan di slope landai, fokus cadence pendek.", min:30},
+          {d:"Jumat", type:"bike", title:"Bike easy", desc:"", min:30},
+          {d:"Sabtu", type:"hike", title:"Long hike + jog rolling hill", desc:"+300m eg di rute bukit.", min:150},
+          {d:"Minggu", type:"bike", title:"Recovery spin", desc:"Atau rest total.", min:40},
+        ]
+      },
+      {
+        label: "Minggu 6", range: "12–18 Okt", start: "2026-10-12",
+        days: [
+          {d:"Senin", type:"rest", title:"Rest", desc:"", min:0},
+          {d:"Selasa", type:"bike", title:"Bike zona 2", desc:"", min:45},
+          {d:"Rabu", type:"run", title:"Trail run kontinu", desc:"", min:60},
+          {d:"Kamis", type:"strength", title:"Strength + downhill drill", desc:"8x30 detik.", min:30},
+          {d:"Jumat", type:"bike", title:"Bike easy", desc:"", min:35},
+          {d:"Sabtu", type:"hike", title:"Trail long run", desc:"Ulangi loop bukit rolling 2–3x.", min:180},
+          {d:"Minggu", type:"run", title:"Easy shakeout", desc:"Jalan/lari ringan.", min:30},
+        ]
+      },
+      {
+        label: "Minggu 7", range: "19–25 Okt", start: "2026-10-19",
+        days: [
+          {d:"Senin", type:"rest", title:"Rest", desc:"", min:0},
+          {d:"Selasa", type:"bike", title:"Bike zona 2", desc:"", min:40},
+          {d:"Rabu", type:"run", title:"Trail run + strength", desc:"", min:50},
+          {d:"Kamis", type:"rest", title:"Mobility & PF check", desc:"", min:15},
+          {d:"Jumat", type:"rest", title:"Rest", desc:"Persiapan sesi besar akhir pekan.", min:0},
+          {d:"Sabtu", type:"key", title:"Sesi gunung asli", desc:"Akses 2 jam dari rumah — 3.5–4 jam, power hike jarak jauh + turunan teknikal pace sangat terkontrol.", min:220},
+          {d:"Minggu", type:"bike", title:"Recovery", desc:"Jalan santai/bike ringan.", min:30},
+        ]
+      },
+      {
+        label: "Minggu 8", range: "26 Okt–1 Nov", start: "2026-10-26",
+        days: [
+          {d:"Senin", type:"rest", title:"Rest", desc:"Deload week.", min:0},
+          {d:"Selasa", type:"bike", title:"Bike ringan", desc:"", min:30},
+          {d:"Rabu", type:"run", title:"Trail run easy", desc:"", min:30},
+          {d:"Kamis", type:"strength", title:"Strength ringan", desc:"", min:15},
+          {d:"Jumat", type:"rest", title:"Rest", desc:"", min:0},
+          {d:"Sabtu", type:"hike", title:"Hike santai", desc:"Tanpa intensitas.", min:75},
+          {d:"Minggu", type:"rest", title:"Rest total", desc:"", min:0},
+        ]
+      },
+    ]
+  },
+  {
+    name: "Fase 3 — Puncak & Spesifik Race",
+    goal: "Volume puncak, sesi back-to-back akhir pekan mensimulasikan tuntutan race, uji coba nutrisi & gear.",
+    weeks: [
+      {
+        label: "Minggu 9", range: "2–8 Nov", start: "2026-11-02",
+        days: [
+          {d:"Senin", type:"rest", title:"Rest", desc:"", min:0},
+          {d:"Selasa", type:"bike", title:"Bike zona 2", desc:"", min:40},
+          {d:"Rabu", type:"run", title:"Trail run", desc:"", min:55},
+          {d:"Kamis", type:"strength", title:"Strength + downhill drill", desc:"", min:25},
+          {d:"Jumat", type:"bike", title:"Bike easy", desc:"", min:30},
+          {d:"Sabtu", type:"key", title:"Long trail 4 jam", desc:"Gunung/bukit besar — uji coba nutrisi race.", min:240},
+          {d:"Minggu", type:"hike", title:"Back-to-back hike/trail", desc:"Easy, latihan lari di kaki lelah.", min:90},
+        ]
+      },
+      {
+        label: "Minggu 10", range: "9–15 Nov", start: "2026-11-09",
+        days: [
+          {d:"Senin", type:"rest", title:"Rest", desc:"", min:0},
+          {d:"Selasa", type:"bike", title:"Bike zona 2", desc:"", min:40},
+          {d:"Rabu", type:"run", title:"Trail run", desc:"", min:55},
+          {d:"Kamis", type:"strength", title:"Strength ringan", desc:"", min:20},
+          {d:"Jumat", type:"rest", title:"Rest", desc:"Persiapan weekend puncak.", min:0},
+          {d:"Sabtu", type:"key", title:"Long mountain trail — sesi terbesar", desc:"5–6 jam, replikasi elevation gain race sebanyak mungkin.", min:330},
+          {d:"Minggu", type:"hike", title:"Back-to-back trail/hike", desc:"Easy, 2–2.5 jam.", min:135},
+        ]
+      },
+      {
+        label: "Minggu 11", range: "16–22 Nov", start: "2026-11-16",
+        days: [
+          {d:"Senin", type:"rest", title:"Rest", desc:"Mulai transisi taper.", min:0},
+          {d:"Selasa", type:"bike", title:"Bike ringan", desc:"", min:30},
+          {d:"Rabu", type:"run", title:"Trail run", desc:"", min:45},
+          {d:"Kamis", type:"strength", title:"Strength ringan + mobility", desc:"", min:20},
+          {d:"Jumat", type:"rest", title:"Rest", desc:"", min:0},
+          {d:"Sabtu", type:"hike", title:"Long trail", desc:"3–3.5 jam, sedikit latihan downhill race-pace.", min:200},
+          {d:"Minggu", type:"rest", title:"Easy recovery + cek gear", desc:"Sepatu, poles, nutrisi race.", min:40},
+        ]
+      },
+    ]
+  },
+  {
+    name: "Fase 4 — Taper & Race",
+    goal: "Turunkan volume tajam, jaga kesegaran, siapkan logistik dan mental race day.",
+    weeks: [
+      {
+        label: "Minggu 12", range: "23–29 Nov", start: "2026-11-23",
+        days: [
+          {d:"Senin", type:"rest", title:"Rest", desc:"", min:0},
+          {d:"Selasa", type:"bike", title:"Bike easy", desc:"", min:25},
+          {d:"Rabu", type:"run", title:"Trail run easy", desc:"Tanpa downhill keras.", min:30},
+          {d:"Kamis", type:"strength", title:"Mobility & strength ringan", desc:"", min:15},
+          {d:"Jumat", type:"rest", title:"Rest", desc:"", min:0},
+          {d:"Sabtu", type:"hike", title:"Trail easy", desc:"Santai, jaga kesegaran.", min:90},
+          {d:"Minggu", type:"rest", title:"Rest + finalisasi logistik race", desc:"", min:0},
+        ]
+      },
+      {
+        label: "Minggu 13 — Race week", range: "30 Nov–6 Des", start: "2026-11-30",
+        days: [
+          {d:"Senin", type:"run", title:"Shakeout run", desc:"Santai.", min:20},
+          {d:"Selasa", type:"rest", title:"Rest + mobility ringan", desc:"", min:10},
+          {d:"Rabu", type:"run", title:"Shakeout + cek gear final", desc:"", min:15},
+          {d:"Kamis", type:"rest", title:"Rest total", desc:"Mulai carb-load, tidur cukup.", min:0},
+          {d:"Jumat", type:"rest", title:"Rest, perjalanan & briefing", desc:"", min:0},
+          {d:"Sabtu", type:"key", title:"RACE DAY — Siksorogo Lawu Ultra 50K", desc:"53.99 km / +3599 m. Power hike semua tanjakan, turunan hati-hati, fueling tiap 30–45 menit, target finish di bawah 17 jam.", min:0},
+          {d:"Minggu", type:"rest", title:"Recovery total", desc:"Selamat, kamu ultra runner sekarang.", min:0},
+        ]
+      },
+    ]
+  },
+];
+
+const state = {};
+PHASES.forEach((ph,pi)=>ph.weeks.forEach((wk,wi)=>wk.days.forEach((day,di)=>{
+  state[pi+"-"+wi+"-"+di] = {done:false, rpe:"", pain:"", note:""};
+})));
+
+const today = new Date();
+function parseDate(s){ return new Date(s+"T00:00:00"); }
+function weekIndexInfo(){
+  let flatIdx = 0;
+  for(let pi=0; pi<PHASES.length; pi++){
+    for(let wi=0; wi<PHASES[pi].weeks.length; wi++){
+      const start = parseDate(PHASES[pi].weeks[wi].start);
+      const end = new Date(start); end.setDate(end.getDate()+6);
+      if(today>=start && today<=end) return {pi,wi};
+      flatIdx++;
+    }
+  }
+  return null;
+}
+const current = weekIndexInfo();
+
+function typeLabel(t){
+  return {run:"Trail run",hike:"Hike",bike:"Sepeda",strength:"Strength",rest:"Rest",key:"Kunci"}[t]||t;
+}
+
+function render(){
+  const root = document.getElementById("phases");
+  root.innerHTML = "";
+  PHASES.forEach((ph,pi)=>{
+    const phaseEl = document.createElement("div");
+    phaseEl.className = "phase";
+    const isCurrentPhase = current && current.pi===pi;
+    phaseEl.innerHTML = `
+      <div class="phase-bullet"></div>
+      <div class="phase-head" data-pi="${pi}">
+        <span class="phase-toggle">${isCurrentPhase ? "sedang berjalan ▾" : "lihat minggu ▾"}</span>
+        <h2>${ph.name}</h2>
+        <div class="phase-range">${ph.weeks[0].range} – ${ph.weeks[ph.weeks.length-1].range}</div>
+        <p class="phase-goal">${ph.goal}</p>
+      </div>
+      <div class="weeks ${isCurrentPhase?"open":""}" id="weeks-${pi}"></div>
+    `;
+    root.appendChild(phaseEl);
+    const weeksRoot = phaseEl.querySelector(`#weeks-${pi}`);
+    ph.weeks.forEach((wk,wi)=>{
+      const isCurrentWeek = current && current.pi===pi && current.wi===wi;
+      const totalMin = wk.days.reduce((s,d)=>s+d.min,0);
+      const weekEl = document.createElement("div");
+      weekEl.className = "week";
+      weekEl.innerHTML = `
+        <div class="week-head">
+          <div class="wt"><b>${wk.label}</b> ${isCurrentWeek?'<span class="now-tag">Minggu ini</span>':''}<div class="wd">${wk.range}</div></div>
+          <div class="wmin">${Math.round(totalMin/60*10)/10} jam rencana</div>
+        </div>
+      `;
+      wk.days.forEach((day,di)=>{
+        const key = pi+"-"+wi+"-"+di;
+        const dayEl = document.createElement("div");
+        dayEl.className = "day" + (day.type==="rest"?" rest":"");
+        dayEl.innerHTML = `
+          <input type="checkbox" data-key="${key}">
+          <div class="day-main">
+            <div class="day-top">
+              <span class="day-name">${day.d}</span>
+              <span class="type-tag type-${day.type}">${typeLabel(day.type)}</span>
+              <span class="day-dur">${day.min>0?day.min+" menit":""}</span>
+            </div>
+            <div class="day-title" data-title="${key}">${day.title}</div>
+            ${day.desc?`<div class="day-desc">${day.desc}</div>`:""}
+            <button class="log-btn" data-log="${key}">+ catatan</button>
+            <div class="log-panel" id="log-${key}">
+              <div class="log-row">
+                <div class="log-field"><label>RPE (1–10)</label><input type="number" min="1" max="10" data-field="rpe" data-key="${key}"></div>
+                <div class="log-field"><label>Nyeri PF (0–10)</label><input type="number" min="0" max="10" data-field="pain" data-key="${key}"></div>
+              </div>
+              <div class="log-field"><label>Catatan</label><textarea data-field="note" data-key="${key}" placeholder="Bagaimana rasanya sesi ini?"></textarea></div>
+              <div class="saved-hint" id="hint-${key}"></div>
+            </div>
+          </div>
+        `;
+        weekEl.appendChild(dayEl);
+      });
+      weeksRoot.appendChild(weekEl);
+    });
+  });
+
+  document.querySelectorAll(".phase-head").forEach(el=>{
+    el.addEventListener("click",()=>{
+      const w = document.getElementById("weeks-"+el.dataset.pi);
+      w.classList.toggle("open");
+      el.querySelector(".phase-toggle").textContent = w.classList.contains("open") ? "tutup ▴" : "lihat minggu ▾";
+    });
+  });
+  document.querySelectorAll('input[type=checkbox][data-key]').forEach(cb=>{
+    cb.addEventListener("change",()=>{
+      state[cb.dataset.key].done = cb.checked;
+      document.querySelector(`[data-title="${cb.dataset.key}"]`).classList.toggle("checked",cb.checked);
+      updateProgress();
+      updateChart();
+    });
+  });
+  document.querySelectorAll("[data-log]").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      document.getElementById("log-"+btn.dataset.log).classList.toggle("open");
+    });
+  });
+  document.querySelectorAll("[data-field]").forEach(inp=>{
+    inp.addEventListener("input",()=>{
+      state[inp.dataset.key][inp.dataset.field] = inp.value;
+      const hint = document.getElementById("hint-"+inp.dataset.key);
+      hint.textContent = "tersimpan";
+      clearTimeout(hint._t);
+      hint._t = setTimeout(()=>hint.textContent="",1200);
+      if(inp.dataset.field==="pain" && Number(inp.value)>=6){
+        hint.textContent = "nyeri cukup tinggi — pertimbangkan deload / hubungi fisio";
+        hint.style.color = "var(--clay)";
+      } else {
+        hint.style.color = "var(--pine)";
+      }
+    });
+  });
+
+  updateProgress();
+  updateChart();
+}
+
+function updateProgress(){
+  const keys = Object.keys(state).filter(k=>{
+    const [pi,wi,di] = k.split("-").map(Number);
+    return PHASES[pi].weeks[wi].days[di].type !== "rest";
+  });
+  const done = keys.filter(k=>state[k].done).length;
+  const pct = keys.length ? Math.round(done/keys.length*100) : 0;
+  document.getElementById("progressPct").textContent = pct+"%";
+  document.getElementById("progressFill").style.width = pct+"%";
+}
+
+function updateChart(){
+  const svg = document.getElementById("chart");
+  const weeks = [];
+  PHASES.forEach((ph,pi)=>ph.weeks.forEach((wk,wi)=>{
+    const planned = wk.days.reduce((s,d)=>s+d.min,0);
+    const done = wk.days.reduce((s,d,di)=>s+(state[pi+"-"+wi+"-"+di].done?d.min:0),0);
+    weeks.push({planned,done,label:wi+1});
+  }));
+  const maxV = Math.max(...weeks.map(w=>w.planned),60);
+  const w = 860, h = 150, padB = 20, padT = 6;
+  const bw = w/weeks.length;
+  let svgHtml = "";
+  weeks.forEach((wk,i)=>{
+    const x = i*bw + bw*0.22;
+    const bwidth = bw*0.56;
+    const ph = (wk.planned/maxV)*(h-padB-padT);
+    const dh = (wk.done/maxV)*(h-padB-padT);
+    const yPlanned = h-padB-ph;
+    const yDone = h-padB-dh;
+    svgHtml += `<rect x="${x}" y="${yPlanned}" width="${bwidth}" height="${ph}" fill="var(--stone-soft)" stroke="var(--stone)" stroke-width="1"></rect>`;
+    svgHtml += `<rect x="${x}" y="${yDone}" width="${bwidth}" height="${dh}" fill="var(--pine)"></rect>`;
+    svgHtml += `<text x="${x+bwidth/2}" y="${h-4}" font-size="9" fill="var(--ink-soft)" text-anchor="middle">M${wk.label}</text>`;
+  });
+  svg.innerHTML = svgHtml;
+}
+
+// countdown
+(function(){
+  const race = new Date("2026-12-05T00:00:00");
+  const diffDays = Math.ceil((race-today)/(1000*60*60*24));
+  const label = document.getElementById("countdownLabel");
+  if(diffDays>0) label.textContent = diffDays+" hari lagi";
+  else if(diffDays===0) label.textContent = "Hari ini!";
+  else label.textContent = "Race day";
+})();
+
+render();
+</script>
+</body>
+</html>

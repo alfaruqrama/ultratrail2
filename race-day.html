@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SLU 50K 2026 · Race Day Plan</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #faf6f0;
+    --card: #ffffff;
+    --ink: #23201b;
+    --muted: #6f675c;
+    --line: #e7ded2;
+    --accent: #e8590c;
+    --accent-soft: #fde8da;
+    --green: #2f9e44;
+    --green-soft: #e6f4ea;
+    --amber: #e8590c;
+    --amber-soft: #fde8da;
+    --orange: #d9480f;
+    --orange-soft: #fbe3d3;
+    --blue: #1971c2;
+    --blue-soft: #e7f1fb;
+    --red: #c92a2a;
+    --red-soft: #ffe3e3;
+    --radius: 16px;
+    --shadow: 0 1px 2px rgba(35,32,27,.05), 0 8px 24px rgba(35,32,27,.06);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, "SF Pro Text", Inter, "Segoe UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: 64px;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 0 16px; }
+
+  /* Sticky header */
+  header {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(250,246,240,.86);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; max-width: 760px; margin: 0 auto; }
+  .brand { font-weight: 800; letter-spacing: -.02em; font-size: 15px; }
+  .brand span { color: var(--accent); }
+  .date-chip {
+    font-size: 12px; font-weight: 700; color: var(--muted);
+    background: var(--card); border: 1px solid var(--line);
+    padding: 5px 11px; border-radius: 999px;
+  }
+  nav { display: flex; gap: 8px; overflow-x: auto; padding: 8px 16px 10px; max-width: 760px; margin: 0 auto; scrollbar-width: none; }
+  nav::-webkit-scrollbar { display: none; }
+  nav a {
+    flex: 0 0 auto; font-size: 12.5px; font-weight: 600; color: var(--muted);
+    text-decoration: none; background: var(--card); border: 1px solid var(--line);
+    padding: 6px 12px; border-radius: 999px; white-space: nowrap;
+  }
+  nav a:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* Hero */
+  .hero { padding: 28px 0 6px; }
+  .kicker { font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+  h1 { font-size: 34px; letter-spacing: -.03em; line-height: 1.1; margin: 6px 0 4px; font-weight: 800; }
+  .sub { color: var(--muted); font-size: 15px; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 20px 0 8px; }
+  .stat {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 14px 12px; text-align: center; box-shadow: var(--shadow);
+  }
+  .stat .v { font-size: 22px; font-weight: 800; letter-spacing: -.02em; }
+  .stat .k { font-size: 11px; color: var(--muted); font-weight: 600; margin-top: 2px; }
+  .stat.acc .v { color: var(--accent); }
+
+  section { margin-top: 28px; }
+  .sec-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .plan-toggle { display: inline-flex; gap: 2px; background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 3px; margin-left: auto; }
+  .plan-btn { border: none; background: transparent; color: var(--muted); font: 700 12px/1 -apple-system, system-ui, sans-serif; padding: 7px 13px; border-radius: 999px; cursor: pointer; }
+  .plan-btn.active { background: var(--accent); color: #fff; }
+  .sec-num {
+    font-size: 12px; font-weight: 800; color: var(--accent);
+    background: var(--accent-soft); border-radius: 8px; padding: 2px 8px;
+  }
+  h2 { font-size: 20px; letter-spacing: -.02em; font-weight: 800; }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 18px; margin-bottom: 12px;
+  }
+  .card h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .muted { color: var(--muted); }
+  .small { font-size: 13px; }
+
+  /* Pacing table */
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th { text-align: left; color: var(--muted); font-weight: 700; font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  td { padding: 11px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  td:nth-child(n+2) { white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  .target { font-weight: 800; color: var(--green); white-space: nowrap; }
+  .cutoff { color: var(--muted); white-space: nowrap; }
+  .cp-name { font-weight: 700; }
+  .buf { font-size: 11.5px; font-weight: 800; color: var(--green); background: var(--green-soft); padding: 2px 7px; border-radius: 6px; white-space: nowrap; }
+  .pace-em { font-weight: 800; letter-spacing: -.01em; }
+  .pace-hike { color: var(--amber); }
+  .pace-run { color: var(--blue); }
+  .pace-down { color: var(--orange); }
+  .split-table td { font-size: 13px; }
+  .split-table th { font-size: 11px; }
+  .split-table td.n { font-variant-numeric: tabular-nums; }
+
+  /* Plan tabs */
+  .plan-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+  .plan-tab {
+    flex: 1; font-family: inherit; cursor: pointer; text-align: left;
+    background: #f6efe6; border: 1.5px solid transparent; border-radius: 12px;
+    padding: 10px 12px; font-size: 13px; font-weight: 800; color: var(--muted);
+    letter-spacing: -.01em; transition: all .14s;
+  }
+  .plan-tab small { display: block; font-size: 10.5px; font-weight: 600; margin-top: 2px; opacity: .85; }
+  .plan-tab:hover { border-color: #e0d3c2; }
+  .plan-tab.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+  .plan-pane { animation: fade .18s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(2px); } to { opacity: 1; transform: none; } }
+  .tag {
+    display: inline-block; font-size: 10.5px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: .03em; padding: 2px 8px; border-radius: 6px; margin-left: 6px;
+  }
+  .tag.drop { background: var(--blue-soft); color: var(--blue); }
+  .tag.cold { background: var(--red-soft); color: var(--red); }
+  .tag.crux { background: var(--amber-soft); color: var(--amber); }
+
+  /* Chart */
+  .chart-box { height: 260px; position: relative; }
+
+  /* Segment cards */
+  .seg { border-left: 4px solid var(--line); }
+  .seg.santay { border-left-color: var(--green); }
+  .seg.crux { border-left-color: var(--amber); }
+  .seg.descent { border-left-color: var(--orange); }
+  .seg.push { border-left-color: var(--blue); }
+  .seg-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .pill {
+    font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .03em;
+    padding: 3px 10px; border-radius: 999px;
+  }
+  .pill.santay { background: var(--green-soft); color: var(--green); }
+  .pill.crux { background: var(--amber-soft); color: var(--amber); }
+  .pill.descent { background: var(--orange-soft); color: var(--orange); }
+  .pill.push { background: var(--blue-soft); color: var(--blue); }
+  .seg-meta { font-size: 12.5px; color: var(--muted); font-weight: 600; }
+  ul.tight { margin: 10px 0 0 18px; }
+  ul.tight li { margin-bottom: 6px; font-size: 14px; }
+  ul.tight li::marker { color: var(--accent); }
+
+  /* Checklist */
+  .check-group { margin-bottom: 14px; }
+  .check-group h4 { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-bottom: 6px; }
+  label.chk {
+    display: flex; align-items: flex-start; gap: 10px; padding: 9px 10px;
+    border-radius: 10px; cursor: pointer; font-size: 14px; border: 1px solid transparent;
+  }
+  label.chk:hover { background: #f6efe6; }
+  label.chk input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .box {
+    flex: 0 0 auto; width: 20px; height: 20px; border-radius: 6px; border: 2px solid var(--line);
+    background: var(--card); display: grid; place-items: center; transition: all .12s;
+    font-size: 13px; color: #fff; font-weight: 900; margin-top: 1px;
+  }
+  label.chk input:checked + .box { background: var(--green); border-color: var(--green); }
+  label.chk input:checked ~ .txt { color: var(--muted); text-decoration: line-through; }
+  label.chk input:checked + .box::after { content: "✓"; }
+
+  /* Grid zones */
+  .zone { display: grid; grid-template-columns: 150px 1fr; gap: 8px 12px; font-size: 13.5px; }
+  .zone .z { font-weight: 800; color: var(--accent); }
+  .zone .d { padding: 2px 0; }
+  .zone-row { border-bottom: 1px solid var(--line); padding: 8px 0; display: grid; grid-template-columns: 150px 1fr; gap: 12px; }
+  .zone-row:last-child { border-bottom: none; }
+
+  .note { background: var(--accent-soft); border: 1px solid #f6cdb0; border-radius: 12px; padding: 14px 16px; font-size: 13.5px; }
+  .note b { color: var(--accent); }
+  .foot { text-align: center; color: var(--muted); font-size: 12px; margin-top: 32px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="topbar">
+    <div class="brand">SLU<span>50K</span> · Race Day Plan</div>
+    <div class="date-chip">5 Des 2026</div>
+  </div>
+  <nav>
+    <a href="index.html">← Latihan</a>
+    <a href="#pacing">Pacing</a>
+    <a href="#splitws">Split WS</a>
+    <a href="#elevasi">Elevasi</a>
+    <a href="#segmen">Segmen</a>
+    <a href="#fueling">Fueling</a>
+    <a href="#dingin">Dingin</a>
+    <a href="#kaki">Kaki</a>
+    <a href="#vest">Vest</a>
+    <a href="#dropbag">Drop Bag</a>
+    <a href="#checklist">Checklist</a>
+  </nav>
+</header>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="kicker">Ultra Trail · 50K</div>
+    <h1>SLU 50K 2026</h1>
+    <div class="sub">Sekipan – Gunung Lawu · Jawa. Musim hujan, ketinggian, &amp; turunan ekstrem.</div>
+    <div class="stats">
+      <div class="stat"><div class="v">53 km</div><div class="k">jarak</div></div>
+      <div class="stat acc"><div class="v">+3.599 m</div><div class="k">elev. gain</div></div>
+      <div class="stat"><div class="v">3</div><div class="k">checkpoint</div></div>
+      <div class="stat"><div class="v">17:00</div><div class="k">COP ♀ finish</div></div>
+    </div>
+  </div>
+
+  <!-- PACING -->
+  <section id="pacing">
+    <div class="sec-head"><span class="sec-num">01</span><h2>Pacing &amp; Cut-off</h2></div>
+    <div class="card">
+      <p class="small muted" style="margin-bottom:12px">Patokan cut-off pakai <b>COP resmi</b>, bukan COROS. <b>Perhatian:</b> COP pria dan wanita beda — karena ini atlet wanita, patokannya kolom <b>♀</b>. Pilih plan di bawah; <b>Plan B adalah default yang realistis</b>.</p>
+
+      <div class="plan-tabs" role="tablist">
+        <button class="plan-tab" data-plan="a" role="tab">Plan A · finis 14:20<small>kalau semua lancar</small></button>
+        <button class="plan-tab active" data-plan="b" role="tab">Plan B · finis 15:15<small>realistis · dipakai</small></button>
+      </div>
+
+      <div class="plan-pane" data-plan="a" hidden>
+        <table>
+          <thead><tr><th>Titik</th><th>Km</th><th>D+ kum</th><th>COP ♀</th><th>Target</th><th>Buffer</th></tr></thead>
+          <tbody>
+            <tr><td class="cp-name">Start Sekipan</td><td>0</td><td>0 m</td><td class="cutoff">—</td><td class="target">0:00</td><td class="cutoff">—</td></tr>
+            <tr><td class="cp-name">CP1 Tlogo Dringo</td><td>15</td><td>1.499 m</td><td class="cutoff">6:00</td><td class="target">4:11</td><td><span class="buf">+1:49</span></td></tr>
+            <tr><td class="cp-name">CP2 Pos 3 Cemoro Kandang<span class="tag crux">crux</span><span class="tag cold">dingin</span></td><td>21</td><td>2.623 m</td><td class="cutoff">9:00</td><td class="target">7:29</td><td><span class="buf">+1:31</span></td></tr>
+            <tr><td class="cp-name">CP3 Candi Cetho<span class="tag drop">drop bag</span></td><td>33</td><td>2.997 m</td><td class="cutoff">13:00</td><td class="target">10:22</td><td><span class="buf">+2:38</span></td></tr>
+            <tr><td class="cp-name">Finish Sekipan</td><td>53</td><td>3.599 m</td><td class="cutoff">17:00</td><td class="target">14:20</td><td><span class="buf">+2:40</span></td></tr>
+          </tbody>
+        </table>
+        <p class="small muted" style="margin-top:10px">Pace rata-rata <b>16'54"/km</b>. Ini target optimis — butuh hari yang bersih: tidak hujan deras, tidak ada masalah GI, kaki tidak bermasalah.</p>
+      </div>
+
+      <div class="plan-pane" data-plan="b">
+        <table>
+          <thead><tr><th>Titik</th><th>Km</th><th>D+ kum</th><th>COP ♀</th><th>Target</th><th>Buffer</th></tr></thead>
+          <tbody>
+            <tr><td class="cp-name">Start Sekipan</td><td>0</td><td>0 m</td><td class="cutoff">—</td><td class="target">0:00</td><td class="cutoff">—</td></tr>
+            <tr><td class="cp-name">CP1 Tlogo Dringo</td><td>15</td><td>1.499 m</td><td class="cutoff">6:00</td><td class="target">4:29</td><td><span class="buf">+1:31</span></td></tr>
+            <tr><td class="cp-name">CP2 Pos 3 Cemoro Kandang<span class="tag crux">crux</span><span class="tag cold">dingin</span></td><td>21</td><td>2.623 m</td><td class="cutoff">9:00</td><td class="target">8:01</td><td><span class="buf">+0:59</span></td></tr>
+            <tr><td class="cp-name">CP3 Candi Cetho<span class="tag drop">drop bag</span></td><td>33</td><td>2.997 m</td><td class="cutoff">13:00</td><td class="target">11:06</td><td><span class="buf">+1:54</span></td></tr>
+            <tr><td class="cp-name">Finish Sekipan</td><td>53</td><td>3.599 m</td><td class="cutoff">17:00</td><td class="target">15:15</td><td><span class="buf">+1:45</span></td></tr>
+          </tbody>
+        </table>
+        <p class="small muted" style="margin-top:10px">Pace rata-rata <b>17'59"/km</b>. Ini yang aku sarankan dipakai sebagai plan utama: masih di bawah COP ♀ di semua titik, dan realistis untuk 50K +3.599 m dengan musim hujan.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SPLIT WS -->
+  <section id="splitws">
+    <div class="sec-head"><span class="sec-num">02</span><h2>Pacing antar WS</h2></div>
+    <div class="card">
+      <p class="small muted" style="margin-bottom:12px">Split per waypoint COROS. Angka = <b>waktu tempuh lomba</b> (elapsed dari start), bukan jam dinding. Toleransi ±15 menit per segmen masih aman.</p>
+
+      <div class="plan-tabs" role="tablist">
+        <button class="plan-tab" data-plan="a" role="tab">Plan A · 14:20</button>
+        <button class="plan-tab active" data-plan="b" role="tab">Plan B · 15:15</button>
+      </div>
+
+      <div class="plan-pane" data-plan="a" hidden>
+        <table class="split-table">
+          <thead><tr><th>Segmen</th><th>Km</th><th>D+/D−</th><th>Pace</th><th>Tempuh</th><th>Kumulatif</th></tr></thead>
+          <tbody>
+            <tr><td class="cp-name">Start → Cemoro Wayang</td><td class="n">6,39</td><td class="n">+414 / −243</td><td class="n pace-em">15'11"</td><td class="n">1:37</td><td class="n target">1:37</td></tr>
+            <tr><td class="cp-name">→ Tlogodringo <span class="tag">CP1 resmi</span></td><td class="n">8,09</td><td class="n">+871 / −490</td><td class="n pace-em">19'02"</td><td class="n">2:34</td><td class="n target">4:11</td></tr>
+            <tr><td class="cp-name">→ Pos 3 Kandang <span class="tag crux">crux</span></td><td class="n">6,20</td><td class="n">+1.195 / −120</td><td class="n pace-em">31'56"</td><td class="n">3:18</td><td class="n target">7:29</td></tr>
+            <tr><td class="cp-name">→ Candi Cetho <span class="tag drop">drop bag</span></td><td class="n">11,76</td><td class="n">+476 / −1.954</td><td class="n pace-em">14'43"</td><td class="n">2:53</td><td class="n target">10:22</td></tr>
+            <tr><td class="cp-name">→ Segorogunung</td><td class="n">6,16</td><td class="n">+219 / −366</td><td class="n pace-em">11'22"</td><td class="n">1:10</td><td class="n target">11:32</td></tr>
+            <tr><td class="cp-name">→ Madirda</td><td class="n">5,78</td><td class="n">+255 / −413</td><td class="n pace-em">12'38"</td><td class="n">1:13</td><td class="n target">12:45</td></tr>
+            <tr><td class="cp-name">→ Finish Sekipan</td><td class="n">6,52</td><td class="n">+359 / −203</td><td class="n pace-em">14'34"</td><td class="n">1:35</td><td class="n target">14:20</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="plan-pane" data-plan="b">
+        <table class="split-table">
+          <thead><tr><th>Segmen</th><th>Km</th><th>D+/D−</th><th>Pace</th><th>Tempuh</th><th>Kumulatif</th></tr></thead>
+          <tbody>
+            <tr><td class="cp-name">Start → Cemoro Wayang</td><td class="n">6,39</td><td class="n">+414 / −243</td><td class="n pace-em">16'18"</td><td class="n">1:44</td><td class="n target">1:44</td></tr>
+            <tr><td class="cp-name">→ Tlogodringo <span class="tag">CP1 resmi</span></td><td class="n">8,09</td><td class="n">+871 / −490</td><td class="n pace-em">20'24"</td><td class="n">2:45</td><td class="n target">4:29</td></tr>
+            <tr><td class="cp-name">→ Pos 3 Kandang <span class="tag crux">crux</span></td><td class="n">6,20</td><td class="n">+1.195 / −120</td><td class="n pace-em">34'12"</td><td class="n">3:32</td><td class="n target">8:01</td></tr>
+            <tr><td class="cp-name">→ Candi Cetho <span class="tag drop">drop bag</span></td><td class="n">11,76</td><td class="n">+476 / −1.954</td><td class="n pace-em">15'44"</td><td class="n">3:05</td><td class="n target">11:06</td></tr>
+            <tr><td class="cp-name">→ Segorogunung</td><td class="n">6,16</td><td class="n">+219 / −366</td><td class="n pace-em">12'11"</td><td class="n">1:15</td><td class="n target">12:21</td></tr>
+            <tr><td class="cp-name">→ Madirda</td><td class="n">5,78</td><td class="n">+255 / −413</td><td class="n pace-em">12'28"</td><td class="n">1:12</td><td class="n target">13:33</td></tr>
+            <tr><td class="cp-name">→ Finish Sekipan</td><td class="n">6,52</td><td class="n">+359 / −203</td><td class="n pace-em">15'39"</td><td class="n">1:42</td><td class="n target">15:15</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="small muted" style="margin-top:10px">Angka pace ini <b>pace rata-rata segmen</b>, bukan pace lari. Segmen 3 pace-nya 34'12" karena grade 19% — itu hiking, bukan lambat.</p>
+    </div>
+
+    <div class="card">
+      <h3>Aturan jalan vs lari — pakai grade, bukan perasaan</h3>
+      <div class="zone-row"><div class="z pace-run">Grade 0–8%</div><div class="d"><b>Lari.</b> Ini zona "gratis". Jangan disia-siakan dengan jalan santai.</div></div>
+      <div class="zone-row"><div class="z">Grade 8–15%</div><div class="d"><b>Shuffle / run-walk</b> 30–60 detik lari, 30 detik jalan. Napas masih harus bisa 1 kalimat penuh.</div></div>
+      <div class="zone-row"><div class="z pace-hike">Grade &gt;15%</div><div class="d"><b>Power hike + pole.</b> Tangan dorong ke belakang, langkah pendek, badan sedikit ke depan. Lari di sini = bakar match tanpa hasil.</div></div>
+      <div class="zone-row"><div class="z pace-down">Turunan &gt;10%</div><div class="d"><b>Turun terkontrol.</b> Kadens tinggi, langkah pendek, lutut tekuk, pole sebagai rem. Jangan sprint — kuadrisep masih dipakai 20 km lagi.</div></div>
+      <div class="zone-row"><div class="z">Turunan teknis/berbatu</div><div class="d"><b>Jalan cepat.</b> Lebih cepat 2 menit turun pelan daripada 10 menit mengobati pergelangan keseleo.</div></div>
+    </div>
+
+    <div class="card">
+      <h3>Disiplin di WS</h3>
+      <ul class="tight">
+        <li><b>Maks 5 menit</b> berhenti per WS (CP4 Cetho 10 menit karena drop bag).</li>
+        <li>Sebelum masuk WS, putuskan 3 hal: <b>isi air?</b> · <b>makan padat?</b> · <b>layer/shell?</b> Kalau tidak, langsung jalan.</li>
+        <li><b>Jangan duduk.</b> Duduk = otot dingin = 10 menit pertama segmen berikutnya jadi limbung.</li>
+        <li>Makan sambil jalan keluar WS, bukan sambil berdiri di meja.</li>
+      </ul>
+    </div>
+
+    <div class="note">
+      <b>Titik evaluasi: CP2 Pos 3 Kandang (km 21).</b> Ini gerbang keputusan.
+      <ul class="tight" style="margin-top:8px">
+        <li><b>Tiba ≤ 8:01</b> (plan B on track) → lanjut, jaga pace tabel.</li>
+        <li><b>Tiba 8:01–8:40</b> → masih lolos COP, tapi buang target waktu. Pindah ke <b>mode jaga buffer</b>: turunkan 1 tingkat intensitas, perketat makan/hidrasi, target CP3 ≤ 12:00.</li>
+        <li><b>Tiba &gt; 8:40</b> → <b>mode survival</b>. Lupakan target apa pun. Intensitas Z1, fokus lolos COP ♀ (9:00 / 13:00 / 17:00) dengan makan + minum terus. Kalau sudah di 8:40 dan masih harus naik 1.195 m, jujur ke diri: target finis realistis 16:30–17:00.</li>
+        <li><b>Tiba sebelum 7:30</b> → jangan langsung gas. Segmen turun −1.954 m berikutnya yang akan menghukum kalau kuadrisep dibakar sekarang.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ELEVASI -->
+  <section id="elevasi">
+    <div class="sec-head"><span class="sec-num">03</span><h2>Profil Elevasi</h2></div>
+    <div class="card">
+      <div class="chart-box"><canvas id="elevChart"></canvas></div>
+      <p class="small muted" style="margin-top:8px">Elevasi relatif (titik start = 0). Puncak tertinggi di <b>Cemoro Kandang (km 21, +1.723 m)</b> — setelah itu turun panjang −1.943 m ke Candi Cetho, titik terendah.</p>
+    </div>
+  </section>
+
+  <!-- SEGMEN -->
+  <section id="segmen">
+    <div class="sec-head"><span class="sec-num">04</span><h2>Strategi per Segmen</h2></div>
+
+    <div class="card seg santay">
+      <div class="seg-head"><h3>Seg A — Start → CP1 (0–15 km)</h3><span class="pill santay">Santay</span></div>
+      <div class="seg-meta">+1.499 m / −827 m</div>
+      <ul class="tight">
+        <li><b>Km 0–3:</b> lepas pelan, biarkan orang lewat. Jangan ikut gas.</li>
+        <li><b>Km 3–14:</b> <b>lari</b> di bagian landai/runnable, <b>power hike + pole</b> di tanjakan &gt;15%.</li>
+        <li>Tes napas: harus bisa ngobrol penuh (Z2). Kalau tidak, kamu kecepatan.</li>
+        <li>Makan sambil jalan, jangan duduk di CP1.</li>
+      </ul>
+    </div>
+
+    <div class="card seg crux">
+      <div class="seg-head"><h3>Seg B — CP1 → CP2 (15–21 km)</h3><span class="pill crux">Crux · Hiking</span></div>
+      <div class="seg-meta">+1.124 m dalam 6 km ≈ 18–19% rata-rata</div>
+      <ul class="tight">
+        <li>Segmen paling kejam. <b>Hampir 100% power hike + pole.</b> Lari hanya di micro-flat.</li>
+        <li>Kunci: jaga HR tidak meledak. Langkah pendek, konsisten, napas ngobrol.</li>
+        <li><b>Wajib tetap makan</b> walau nafsu turun — madu/telur paling ramah lambung di sini.</li>
+        <li>Ini titik <b>dingin</b>: ketinggian naik, produksi panas turun. Siapkan shell.</li>
+      </ul>
+    </div>
+
+    <div class="card seg descent">
+      <div class="seg-head"><h3>Seg C — CP2 → CP3 (21–33 km)</h3><span class="pill descent">Descent · Terkontrol</span></div>
+      <div class="seg-meta">+374 m / −1.943 m · pembunuh kuadrisep</div>
+      <ul class="tight">
+        <li><b>Bukan bom.</b> Langkah pendek-cepat, kadens tinggi, lutut sedikit tekuk, <b>pole untuk rem</b>.</li>
+        <li>Kuadrisep masih dipakai 20 km terakhir — jangan dipacu di sini.</li>
+        <li>HR rendah = <b>paling gampang makan</b>. Manfaatkan.</li>
+        <li><b>Titik cold-risk:</b> shell/rain jacket dibuka-pakai di sini (lihat §06).</li>
+      </ul>
+    </div>
+
+    <div class="card seg push">
+      <div class="seg-head"><h3>Seg D — CP3 → Finish (33–53 km)</h3><span class="pill push">Push · Rolling</span></div>
+      <div class="seg-meta">+602 m / −756 m · gelap</div>
+      <ul class="tight">
+        <li><b>Km 33–42:</b> kalau kaki masih ada, <b>push lari</b> di flat &amp; turun landai. Run-walk 4' lari / 1' jalan.</li>
+        <li><b>Headlamp</b> sebelum gelap. Makan terus meski tidak lapar — titik bonk paling sering.</li>
+        <li>Pecah jadi 3×~6,5 km di kepala. Finish.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- FUELING -->
+  <section id="fueling">
+    <div class="sec-head"><span class="sec-num">05</span><h2>Fueling &amp; Hidrasi</h2></div>
+    <div class="card">
+      <h3>Kerangka</h3>
+      <p class="small muted">Lomba &gt;6 jam di Z1–Z2: <b>30–50 g karbo/jam + 5–10 g protein/jam</b> (150–400 kkal/jam), multi-substrat manis + gurih. Kalau gut-mu terlatih boleh 60 g/jam — <b>jangan debut 90 g/jam di hari-H</b>.</p>
+      <ul class="tight" style="margin-top:10px">
+        <li><b>Tiap 20–30 menit:</b> satu sumber karbo (madu / gel / stride sip / chew). Mulai menit ke-20–30, jangan tunggu lapar.</li>
+        <li><b>Tiap 45–60 menit:</b> elektrolit + minum 150–200 ml.</li>
+        <li><b>Di setiap CP:</b> makanan nyata (pisang / kentang+garam / kerupuk asin / <b>soup hangat</b>) + isi ulang air.</li>
+        <li><b>Cairan:</b> 400–800 ml/jam (Desember lembap → condong ke atas). Jangan lewat elektrolit walau tidak haus.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Logistik yang dibawa</h3>
+      <ul class="tight">
+        <li><b>Madu</b> (~20–25 g karbo/sachet) — karbo cepat, tulang punggung. Kantong depan.</li>
+        <li><b>Strive</b> — hidrasi + karbo. <i>(cek label: karbo &amp; natrium per serving)</i></li>
+        <li><b>Telur rebus</b> — protein + lemak. <b>Makan maks. sampai CP2 (±6 jam)</b>; simpan terisolasi, risiko food-safety di panas tropis.</li>
+        <li><b>Elektrolit</b> — natrium 300–600 mg/jam. Satu flask khusus elektrolit, satu air putih.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Tambahan yang disarankan</h3>
+      <ul class="tight">
+        <li><b>Gel/chew</b> — untuk segmen susah makan padat (Seg C).</li>
+        <li><b>Makanan CP</b> — kentang+garam, pisang, kerupuk asin, <b>soup hangat</b> (natrium + hangat, emas saat dingin).</li>
+        <li><b>Ginger chew / rasa gurih-asam</b> — lawan "manis-bosan" setelah 6 jam.</li>
+        <li><b>Kafein 2–4 mg/kg</b> di 3–4 jam terakhir (butuh BB untuk mg tepat). Jangan debut dosis tinggi.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- DINGIN -->
+  <section id="dingin">
+    <div class="sec-head"><span class="sec-num">06</span><h2>Protokol Dingin &amp; Hujan</h2></div>
+    <div class="card">
+      <h3>Kapan pakai jas hujan / shell</h3>
+      <ul class="tight">
+        <li>Pakai <b>SEBELUM</b> basah &amp; dingin — idealnya di CP2 atau sebelum descent Seg C, atau begitu hujan mulai.</li>
+        <li><b>Jangan tunggu menggigil.</b> Begitu menggigil, terlambat.</li>
+        <li>Cari shell <b>taped-seam + hood</b>, bukan windbreaker tipis.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Agar tidak kedinginan</h3>
+      <ul class="tight">
+        <li>Jangan berdiri diam di CP &gt;5 menit saat basah+dingin — makan sambil jalan.</li>
+        <li>Lapisan: base <b>merino/sintetis</b> (bukan katun) → mid tipis → shell.</li>
+        <li><b>Ekstremitas dulu:</b> buff/beanie, sarung tangan kering, kaos kaki kering.</li>
+        <li>Makanan/minuman hangat di CP + bawa <b>emergency bivy/blanket</b>.</li>
+      </ul>
+    </div>
+    <div class="card" style="border-color:#f3c2c2; background:#fff7f7">
+      <h3 style="color:var(--red)">Tanda bahaya hipotermia</h3>
+      <p class="small">Menggigil tak terkendali · kikuk/kelelahan motorik · bingung. → Tambah layer, makan, bergerak, turun ke CP.</p>
+      <p class="small muted" style="margin-top:6px">Cek <b>mandatory gear</b> race (biasanya: shell, headlamp + cadangan, bivy, whistle, phone, ekstra makanan).</p>
+    </div>
+  </section>
+
+  <!-- KAKI -->
+  <section id="kaki">
+    <div class="sec-head"><span class="sec-num">07</span><h2>Protokol Kaki &amp; Blister</h2></div>
+    <div class="card">
+      <p class="small muted" style="margin-bottom:10px">Turunan −1.943 m = penyebab #1 blister jari &amp; kuku hitam: kaki meluncur ke depan di sepatu.</p>
+      <ul class="tight">
+        <li><b>Heel-lock lacing</b> (simpul pengunci di lubang teratas) — paling berdampak di Seg C.</li>
+        <li><b>Kaos kaki jari (Injinji) atau double-layer</b>, bukan katun.</li>
+        <li><b>Lubrikan</b> jari &amp; tumit sebelum start (BodyGlide/Sportslick/Vaseline).</li>
+        <li><b>Tape hot-spot</b> yang sudah dikenal (Leukotape) sebelum lomba.</li>
+        <li><b>Gaiters</b> cegah kerikil · <b>keringkan + powder</b> kaki di CP · <b>potong kuku pendek</b> H-2.</li>
+        <li>Sepatu <b>½ nomor lebih besar</b> untuk swelling descent — tapi wajib heel-lock.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Ganti kaos kaki? — Ya, di CP3</h3>
+      <p class="small">Kaki basah 20 km terakhir = blister meledak. Kaos kaki kering itu wajib, bukan opsional.</p>
+    </div>
+  </section>
+
+  <!-- VEST -->
+  <section id="vest">
+    <div class="sec-head"><span class="sec-num">08</span><h2>Tata Letak Vest</h2></div>
+    <div class="card">
+      <p class="small muted" style="margin-bottom:10px"><b>Aturan:</b> apa pun yang dibutuh 3 jam pertama <b>wajib di depan</b>. Zip-lock terpisah untuk madu/telur (lengket) &amp; elektronik (Desember hujan!).</p>
+      <div class="zone-row"><div class="z">Dada kiri</div><div class="d">Madu sachet, 1–2 gel, salt tab — dimakan sambil lari.</div></div>
+      <div class="zone-row"><div class="z">Dada kanan</div><div class="d">Chew, tisu, phone / emergency kecil.</div></div>
+      <div class="zone-row"><div class="z">Flask depan</div><div class="d">1× air putih, 1× elektrolit (pipet dekat mulut).</div></div>
+      <div class="zone-row"><div class="z">Belakang</div><div class="d">Strive bubuk, telur (terisolasi), shell, layer, bivy — jangan digali saat bergerak.</div></div>
+      <div class="zone-row"><div class="z">Samping/bawah</div><div class="d">Trekking pole (attachment lepas-pasang cepat).</div></div>
+    </div>
+    <div class="note">
+      <b>Khusus cewek:</b> vest harus pas dada (bukan vest pria), base layer merino perempuan. Bawa <b>tissue/tabung sanitasi</b>, <b>buff rambut/leher</b>, <b>hair tie + safety pin</b>. Jangan tahan minum karena takut pipis — itu bikin dehidrasi + makin kedinginan.
+    </div>
+  </section>
+
+  <!-- DROP BAG -->
+  <section id="dropbag">
+    <div class="sec-head"><span class="sec-num">09</span><h2>Drop Bag — CP3 Candi Cetho (km 33)</h2></div>
+    <div class="card">
+      <ul class="tight">
+        <li>✅ <b>Kaos kaki kering</b> (wajib)</li>
+        <li>✅ <b>Base layer kering</b> (lengan panjang)</li>
+        <li>✅ <b>Sarung tangan kering + buff kering</b></li>
+        <li>✅ <b>Kit blister + powder + tape</b></li>
+        <li>✅ Baterai headlamp cadangan</li>
+        <li>✅ Ekstra karbo</li>
+      </ul>
+      <p class="small muted" style="margin-top:10px">Ganti outfit penuh hanya kalau basah kuyup — dan <b>cepat (&lt;10 menit)</b>, jangan kedinginan saat ganti.</p>
+    </div>
+  </section>
+
+  <!-- CHECKLIST -->
+  <section id="checklist">
+    <div class="sec-head"><span class="sec-num">10</span><h2>Checklist Interaktif</h2></div>
+    <div class="card">
+      <div class="check-group">
+        <h4>Pre-race (H-2 s.d. start)</h4>
+        <label class="chk"><input type="checkbox"><span class="box"></span><span class="txt">Kuku jari dipotong pendek (H-2)</span></label>
+        <label class="chk"><input type="checkbox"><span class="box"></span><span class="txt">Semua gear diuji: vest, sepatu, pole, headlamp</span></label>
+        <label class="chk"><input type="checkbox"><span class="box"></span><span class="txt">Sepatu + kaos kaki lomba sudah dicoba di long run</span></label>
+        <label class="chk"><input type="checkbox"><span class="box"></span><span class="txt">Label Strive dicek (karbo + natrium)</span></label>
+        <label class="chk"><input type="checkbox"><span class="box"></span><span class="txt">Drop bag CP3 dikemas (socks, base, gloves, blister kit)</span></label>
+        <label class="chk"><input type="checkbox"><span class="box"></span><span class="txt">Mandatory gear dicek (shell, headlamp+cadangan, bivy, whistle, phone)</span></label>
+        <label class="chk"><input type="checkbox"><span class="box"></span><span class="txt">Karbo load H-2/H-1 (bukan makan berat semalam)</span></label>
+        <label class="chk"><input type="checkbox"><span class="box"></span><span class="txt">Tidur cukup 2 malam sebelum</span></label>
+      </div>
+      <div class="check-group">
+        <h4>Race day pagi</h4>
+        <label class="chk"><input type="checkbox"><span class="box"></span><span class="txt">Sarapan 2–3 jam sebelum start (dikenal tubuh)</span></label>
+        <label class="chk"><input type="checkbox"><span class="box"></span><span class="txt">Lubrikan jari + tumit</span></label>
+        <label class="chk"><input type="checkbox"><span class="box"></span><span class="txt">Tape hot-spot (Leukotape)</span></label>
+        <label class="chk"><input type="checkbox"><span class="box"></span><span class="txt">Heel-lock lacing</span></label>
+        <label class="chk"><input type="checkbox"><span class="box"></span><span class="txt">Vest layout: madu/gel di depan</span></label>
+        <label class="chk"><input type="checkbox"><span class="box"></span><span class="txt">Flask: air + elektrolit</span></label>
+        <label class="chk"><input type="checkbox"><span class="box"></span><span class="txt">Headlamp + baterai cadangan</span></label>
+        <label class="chk"><input type="checkbox"><span class="box"></span><span class="txt">Buff + sarung tangan di tempat mudah</span></label>
+      </div>
+      <div class="check-group">
+        <h4>Di race (cek tiap CP)</h4>
+        <label class="chk"><input type="checkbox"><span class="box"></span><span class="txt">Makan tiap 20–30 menit (jangan tunggu lapar)</span></label>
+        <label class="chk"><input type="checkbox"><span class="box"></span><span class="txt">Minum elektrolit tiap 45–60 menit</span></label>
+        <label class="chk"><input type="checkbox"><span class="box"></span><span class="txt">Shell dipakai SEBELUM basah/dingin</span></label>
+        <label class="chk"><input type="checkbox"><span class="box"></span><span class="txt">Tidak diam di CP &gt;5 menit saat basah</span></label>
+        <label class="chk"><input type="checkbox"><span class="box"></span><span class="txt">CP3: ganti kaos kaki + cek kaki</span></label>
+        <label class="chk"><input type="checkbox"><span class="box"></span><span class="txt">Headlamp menyala sebelum gelap</span></label>
+      </div>
+    </div>
+  </section>
+
+  <div class="note" style="margin-top:20px">
+    <b>Data yang masih ditunggu:</b> berat badan, umur, rata-rata jam latihan/minggu (3 minggu terakhir), target finis realistis, label Strive, pengalaman trekking pole &amp; ganti kaos kaki. Angka kafein &amp; g/jam karbo bakal dikunci setelah data masuk.
+  </div>
+
+  <p class="foot">SLU 50K 2026 · Sekipan–Lawu · dibuat untuk race day, 5 Desember 2026</p>
+</div>
+
+<script>
+(function () {
+  // Elevation profile (relatif terhadap start)
+  var km   = [0, 6.39, 14.48, 20.68, 32.44, 38.60, 44.38, 50.90];
+  var elev = [0, 171, 672, 1723, 154, 7, -151, 0];
+  var labels = ['Start','Cemoro Wayang','Tlogo Dringo (CP1)','Kandang (CP2)','Cetho (CP3)','Segorogunung','Madirda','Finish'];
+
+  var el = document.getElementById('elevChart');
+  if (el && window.Chart) {
+    var ctx = el.getContext('2d');
+    var g = ctx.createLinearGradient(0, 0, 0, 260);
+    g.addColorStop(0, 'rgba(232,89,12,.28)');
+    g.addColorStop(1, 'rgba(232,89,12,.02)');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: km,
+        datasets: [{
+          data: elev,
+          borderColor: '#e8590c',
+          borderWidth: 2.5,
+          backgroundColor: g,
+          fill: true,
+          tension: 0.35,
+          pointRadius: 3.5,
+          pointBackgroundColor: km.map(function (k, i) {
+            return (i === 2 || i === 3 || i === 4) ? '#c92a2a' : '#e8590c';
+          }),
+          pointBorderColor: '#fff',
+          pointBorderWidth: 1.5
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              title: function (items) { return labels[items[0].dataIndex]; },
+              label: function (item) { return 'Km ' + km[item.dataIndex] + ' · elev relatif ' + elev[item.dataIndex] + ' m'; }
+            }
+          }
+        },
+        scales: {
+          x: {
+            title: { display: true, text: 'jarak (km)', font: { size: 11 } },
+            grid: { display: false },
+            ticks: { callback: function (v) { return km[v]; } }
+          },
+          y: {
+            title: { display: true, text: 'elevasi relatif (m)', font: { size: 11 } },
+            grid: { color: '#efe8dd' }
+          }
+        }
+      }
+    });
+  }
+})();
+</script>
+
+<script>
+(function () {
+  // Plan A / Plan B tabs — both sections switch together
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.plan-tab'));
+  function selectPlan(plan) {
+    tabs.forEach(function (t) { t.classList.toggle('active', t.dataset.plan === plan); });
+    document.querySelectorAll('.plan-pane').forEach(function (pane) {
+      pane.hidden = pane.dataset.plan !== plan;
+    });
+    try { localStorage.setItem('slu50k-plan', plan); } catch (e) {}
+  }
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () { selectPlan(t.dataset.plan); });
+  });
+  var savedPlan = 'b';
+  try { savedPlan = localStorage.getItem('slu50k-plan') || 'b'; } catch (e) {}
+  if (savedPlan !== 'a' && savedPlan !== 'b') savedPlan = 'b';
+  selectPlan(savedPlan);
+})();
+</script>
+
+<script>
+(function () {
+  var boxes = document.querySelectorAll('#checklist input[type=checkbox]');
+  var KEY = 'slu50k-checklist-v1';
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { saved = {}; }
+  boxes.forEach(function (b, i) {
+    var key = 'c' + i;
+    if (saved[key]) b.checked = true;
+    b.addEventListener('change', function () {
+      saved[key] = b.checked;
+      try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {}
+    });
+  });
+})();
+</script>
+</body>
+</html>
